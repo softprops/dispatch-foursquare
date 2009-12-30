@@ -8,7 +8,7 @@ Check in from everywhere anywhere.
 
 ## usage
 
-    import foursquare._
+    import dispatch.foursquare._
     import dispatch.liftjson.Js._
     import oauth._
     import Http._
