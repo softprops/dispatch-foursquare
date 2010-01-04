@@ -21,5 +21,7 @@ class FoursquareProject(info: ProjectInfo) extends DefaultProject(info) {
 
   // testing
   val configgy = "net.lag" % "configgy" % "1.4" intransitive()
-  val st = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test"
+  val snapshots = "Scala Tools Snapshots" at "http://www.scala-tools.org/repo-snapshots/"
+  val specs = "org.scala-tools.testing" % "specs" % "1.6.2-SNAPSHOT" % "test"
+  //val st = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test"
 }

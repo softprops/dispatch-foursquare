@@ -1,9 +1,8 @@
 package dispatch
 
-import org.scalatest.Spec
-import org.scalatest.matchers.ShouldMatchers
+import org.specs._
   
-class FoursquareSpec extends Spec with ShouldMatchers {
+object FoursquareSpec extends Specification {
   import foursquare._
   import dispatch.liftjson.Js._
   import oauth._
@@ -42,68 +41,91 @@ class FoursquareSpec extends Spec with ShouldMatchers {
     )
     val client = OAuthClient(consumer, accessToken)
     
+   detailedDiffs()
+    
     implicit val http = new Http
       
-    describe("Cities") {
-      it("should find recently active cities") {
-        val cities = client.call(Cities recentlyActive)
-        cities.size should be > (0)
-        val names = cities map City.name
-        println("name %s " format names.size)
-      }
-      it("should find the foursquare city nearest 40.759011,-73.984472 (nyc)") {
-        val city = client.call(Cities near(40.759011,-73.984472)) 
-        println("city near nyc -> %s" format(city))
+    "Cities" should {
+      "should find recently active cities" in {
+         val res = client.call(Cities recentlyActive)
+         val ids = for (r <- res; id <- City.id(r)) yield id
+         ids.size must be > (0)
+       }
+      "find the foursquare city nearest 40.759011,-73.984472 (nyc)" in {
+        val res = client.call(Cities near(40.759011,-73.984472)) 
+       
+        val List(name) = res.flatMap(City.name)
+        val List(id) = res.flatMap(City.id)
+        val List(shortName) = res.flatMap(City.shortName)
+        val List(timezone) = res.flatMap(City.timezone)
+        //val List(geolat) = res.flatMap(City.geolat)
+        //val List(geolong) = res.flatMap(City.geolong)
+        
+        name must_== "New York"
+        id must_== 22
+        shortName must_== "NYC"
+        timezone must_== "America/New_York"
+        //geolat must be closeTo(40.759011, 0.003)
+        //geolong must be closeTo(-73.984472, 0.003)
       }
     }
     
-    describe("Checkins") {
-      it("should find checkins near ?") {
-        val checkins = client.call(Checkins near(40.759011,-73.984472))
-        println("checkins near 40.759011,-73.984472 %s" format checkins)
-      }
-      it("should perform a checkin") {
+    "Checkins" should {
+      "perform a checkin" in {
         // note you prob what to delete these from your history after running 
         // this test :)
-        val checkin = client.call(Checkins.checkIn at("Times Square") shouting("testing dispatch-foursquare") privately)
-        println("checking in privately @ %s" format(checkin map Checkin.message))
+        val res = client.call(Checkins.checkIn at("Times Square") shouting("testing dispatch-foursquare") privately)
+        val List(msg) = res.flatMap(Checkin.message)
+        msg must_=="OK! We've got you @ Times Square."
       }
-      it("should list a checkin history") {
-        val checkins = client.call(Checkins history)
-        println("checkins history %s" format(checkins map Checkin.shout))
+      "find checkins near 40.759011,-73.984472 (nyc)" in {
+          val res = client.call(Checkins near(40.759011,-73.984472))
+          val ids = for (r <- res; id <- Checkin.id(r)) yield id
+          ids.size must be > 0
       }
-    }
-    
-    describe("users") {
-      it("should get the user info for 15026") {
-        val user = client.call(Users get(15026))
-        println("user 15026 is %s" format user)
-      }
-      it("should get the user info about the current user") {
-        val user = client.call(Users current)
-        println("you are %s" format user)
+      "list a checkin history" in {
+        val res = client.call(Checkins history)
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids.size must be > 0
       }
     }
     
-    describe("friends") {
-      it("should find user 15026's friends") {
-        val friends = client.call(Friends of(15026))
-        println("friends of 15026 are %s" format friends)
+    "Users" should {
+       "get the user info for 15026" in {
+        val res = client.call(Users get(15026))
+        val List(id) = res.flatMap(User.id)
+        id must_== 15026
       }
-      it("should find friends by twitter name") {
-        val friends = client.call(Friends withTwitterName("bjburton"))
-        println("friends by twitter are %s" format friends)
+      "get the user info about the current user" in {
+        val res = client.call(Users current)
+        val List(id) = res.flatMap(User.id)
+        id must_== 140048
       }
     }
     
-    describe("venues") {
-      it("should find the venues near 40.759011,-73.984472 (nyc)") {
-        val venues = client.call(Venues near(40.759011,-73.984472))
-        println("venues near nyc -> %s" format venues)
+    "Friends" should {
+      "find user 140048's friends" in {
+        val res = client.call(Friends of(140048))
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids.size must be > 0
       }
-      it("should get venue details for nyc times square") {
-        val venue = client.call(Venues get(41422))
-        println("venue details -> %s" format venue)
+      "find friends by name" in {
+        val res = client.call(Friends named("Ryan"))
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids must contain(15026) 
+      }
+    }
+    
+    "Venues" should {
+      "find the venues near 40.759011,-73.984472 (nyc)" in {
+        val res = client.call(Venues near(40.759011,-73.984472))
+        val ids = for (r <- res; id <- Venue.id(r)) yield id
+        ids.size must_== 0
+      }
+      "get venue details for nyc times square" in {
+        val res = client.call(Venues get(41422))
+        val List(id) = res.flatMap(Venue.id)
+        id must_== 41422
       }
     }
   }

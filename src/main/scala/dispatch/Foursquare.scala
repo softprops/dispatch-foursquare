@@ -76,9 +76,9 @@ object City {
   val id = 'id ? int
   val timezone = 'timezone ? str
   val name = 'name ? str
-  val shortname = 'shortname ? str
-  val geolat = 'geolat ? int
-  val geolong = 'geolong ? int
+  val shortName = 'shortname ? str
+  val geolat = 'geolat ? obj // TODO impl double in  dispatch.liftjson.Js
+  val geolong = 'geolong ? obj // ^ ^
 }
 
 object CitySwitch {
