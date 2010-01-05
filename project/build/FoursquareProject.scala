@@ -6,7 +6,7 @@ class FoursquareProject(info: ProjectInfo) extends DefaultProject(info) {
   val databinderNet = "databinder.net repository" at "http://databinder.net/repo"
  
  
-  val dpVersion = "0.6.4"
+  val dpVersion = "0.6.5"
  
   val dispatchOauth = "net.databinder" %% "dispatch-oauth" % dpVersion
  
