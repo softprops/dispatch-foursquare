@@ -45,7 +45,7 @@ trait Method[T] extends Builder[Request => Request] {
 object Cities extends CityBuilder(Map()) {
   /** get a list of recently active cities */
   def recentlyActive = new CitiesBuilder
-  /** switch the auth user's current city */
+  /** switch the auth user's default city */
   def switch(cityid: Long) = new CitySwitchBuilder(Map(
     "cityid" -> cityid
   ))
@@ -62,6 +62,8 @@ private [foursquare] class CityBuilder(val params: Map[String, Any]) extends Met
   /** get a City near geolat and geolong */
   def near(geolat: Double, geolong: Double) = 
      param("geolat")(geolat).param("geolong")(geolong)
+  def near(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   
   def product = (_: Request) / "checkcity.json" <<? params
   def defaultHandler = _ ># ('city ? obj)
@@ -77,12 +79,13 @@ object City {
   val timezone = 'timezone ? str
   val name = 'name ? str
   val shortName = 'shortname ? str
-  val geolat = 'geolat ? obj // TODO impl double in  dispatch.liftjson.Js
+  val geolat = 'geolat ? obj // TODO impl double in dispatch.liftjson.Js
   val geolong = 'geolong ? obj // ^ ^
 }
 
 object CitySwitch {
-  val status = 'status ? int
+  // BUG?: parsed field comes back as JString rather than JInt List(JField(status,JString(1))
+  val status = 'status ? str
   val message = 'message ? str
 }
 
@@ -99,6 +102,8 @@ private [foursquare] class CheckinsBuilder(val params: Map[String, Any]) extends
   /** get a list of checkin's @ near a geolat + geolong */
   def near(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
+  def near(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   
   def product = (_: Request) / "checkins.json" <<? params 
   def defaultHandler = _ ># ('checkins ? ary)
@@ -111,6 +116,8 @@ private [foursquare] class CheckinBuilder(val params: Map[String, Any]) extends 
   def at(venue: String) = param("venue")(venue)
   def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
+  def at(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   val shouting = param("shout")_
   def privately = param("private")(1)
   def publicly = param("private")(0)
@@ -188,6 +195,9 @@ private [foursquare] class UserBuilder(params: Map[String, Any]) extends  Method
 }
 
 object Friends extends FriendsBuilder(Map()) {
+  
+  def ofMe = this
+  
   def named(name: String) = new FriendsByNameBuilder(Map(
     "q" -> name
   ))
@@ -240,6 +250,8 @@ private [foursquare] class VenuesBuilder(params: Map[String, Any]) extends Metho
   
   def near(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
+  def at(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
     
   val limit = param("l")_
   val named = param("q")_
@@ -265,7 +277,8 @@ private [foursquare] class VenueMakerBuilder(params: Map[String, Any]) extends M
   val phone = param("phone")_
   def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
-  
+  def at(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2) 
   def product = (_: Request) / "addvenue.json" << params
   def defaultHandler = _ ># ('venue ? obj)
 }
@@ -297,6 +310,8 @@ private [foursquare] class TipsBuilder(params: Map[String, Any]) extends Method[
   
   def near(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
+  def near(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   val limit = param("l")_
   
   def product = (_: Request) / "tips.json" <<? params
@@ -309,6 +324,8 @@ private [foursquare] class TipBuilder(params: Map[String, Any]) extends Method[L
   def at(vid: Long) = param("vid")(vid)
   def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
+  def at(geoLatLong: (Double,Double)) =
+    param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   val text = param("text")_
   val asTip = param("type")("tip")
   val asTodo = param("type")("todo")
