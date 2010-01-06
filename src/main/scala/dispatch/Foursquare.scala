@@ -99,7 +99,7 @@ object Checkins extends CheckinsBuilder(Map()) {
 private [foursquare] class CheckinsBuilder(val params: Map[String, Any]) extends Method[List[JValue]] {
   private def param(k: String)(v: Any) = new CheckinsBuilder(params + (k -> v))
   
-  /** get a list of checkin's @ near a geolat + geolong */
+  /** get a list friends of checkin's @ near a geolat + geolong */
   def near(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
   def near(geoLatLong: (Double,Double)) =
@@ -353,10 +353,11 @@ object Badge {
 
 object User {
   val id = 'id ? int
-  val firstname = 'user ? str
-  val lastname = 'venue ? str
-  val gender = 'display ? str
-  
+  val firstname = 'firstname ? str
+  val lastname = 'lastname ? str
+  val gender = 'gender ? str
+  val photo = 'photo ? str
+
   // extended
   val city = 'city ? obj
   val phone = 'phone ? str
