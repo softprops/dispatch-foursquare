@@ -26,7 +26,7 @@ Check in from everywhere anywhere.
 
     val checkinHistory = fs.call(Checkins history) 
 
-    val venues = fs.call(Venues near(40.759011,-73.984472))
+    val venues = fs.call(Venues at(40.759011,-73.984472))
   
     val friendsByName fs.call(Friends named("ryu"))
     

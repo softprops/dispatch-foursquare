@@ -50,8 +50,8 @@ object FoursquareSpec extends Specification {
     case class FSCity(id: Long, name: String, shortName: String, timezone: String, geo:(Double,Double))
     val TestCity = FSCity(22, "New York", "NYC", "America/New_York", (40.759011, -73.984472))  
     case class FSUser(id: Long, firstname: String, lastname: String)
-    val AFriend = FSUser(15026,"Ryan","Gravener")
-    val Me = FSUser(140048,"doug","tangren")
+    val AFriend = FSUser(15026, "Ryan", "Gravener")
+    val Me = FSUser(140048, "doug", "tangren")
       
     "Cities" should {
       "should find recently active cities" in {
@@ -62,7 +62,7 @@ object FoursquareSpec extends Specification {
          ids.size must be > (0)
        }
       "find the foursquare city nearest 40.759011,-73.984472 (nyc)" in {
-        val res = fs.call(Cities near(TestCity.geo))
+        val res = fs.call(Cities at(TestCity.geo))
         val List(name) = res.flatMap(City.name)
         val List(id) = res.flatMap(City.id)
         val List(shortName) = res.flatMap(City.shortName)
@@ -78,7 +78,7 @@ object FoursquareSpec extends Specification {
         //geolong.toString.toDouble must be closeTo(TimesSquareGeo._2, 0.003)
       }
       "switch to other cities" in {
-        List(TestCity.id, Tokyo).foreach((id: Long) => {
+        List(Tokyo, TestCity.id).foreach((id: Long) => {
           val res = fs.call(Cities switch(id))
           val List(status) = res.flatMap(CitySwitch.status)
           status must_== "1"
@@ -98,7 +98,7 @@ object FoursquareSpec extends Specification {
         msg must_=="OK! We've got you @ Times Square."
       }
       "find checkins near 40.759011,-73.984472 (nyc)" in {
-          val res = fs.call(Checkins near(TestCity.geo))
+          val res = fs.call(Checkins at(TestCity.geo))
           val ids = for (r <- res; id <- Checkin.id(r)) yield id
           //val fnames = for (r <- res; List(u) <- r; fname <- User.firstname(u.asInstanceOf[jValue])) yield fname
           ids.size must be > 0
@@ -150,21 +150,21 @@ object FoursquareSpec extends Specification {
     //   }
     // }
     
-    // "Venues" should {
-    //   "find the venues near 40.759011,-73.984472 (nyc)" in {
-    //     val res = fs.call(Venues near(TestCity.geo))
-    //     val ids = for (r <- res; id <- Venue.id(r)) yield id
-    //     ids.size must_== 0
-    //   }
-    //   "get venue details for nyc times square" in {
-    //     val res = fs.call(Venues get(TestCity.geo))
-    //     val List(id) = res.flatMap(Venue.id)
-    //     id must_== 41422
-    //   }
+    "Venues" should {
+        "find the venues near 40.759011,-73.984472 (nyc)" in {
+          val res = fs.call(Venues at(TestCity.geo))
+          val ids = for (r <- res; id <- Venue.id(r)) yield id
+          ids.size must_== 0
+        }
+      "get venue details for nyc times square" in {
+        val res = fs.call(Venues get(TestCity.id))
+        val List(id) = res.flatMap(Venue.id)
+        id must_== TestCity.id
+      }
     //   "add a venue" {
     //     val res = fs.call(Venues.add
     //       .name("Doug's apartment")
-    //       .address("408 E 88th st")
+    //       .address("...")
     //       .crossstreet("1st & 88th")
     //       .city("New York")
     //       .state("NY")
@@ -177,11 +177,12 @@ object FoursquareSpec extends Specification {
     //     val List(msg) = res
     //     msg must_== "ok"
     //   }
-    // }
+    }
     
     // "Tips" should {
     //   "find tips near 40.759011,-73.984472 (nyc)" in {
-    //     val res = fs.call(Tips near(TestCity.geo))
+    //     val res = fs.call(Tips at(TestCity.geo))
+    //     println("tips -> %s" format res)
     //     val ids = for (r <- res; id <- Tip.id(r)) yield id
     //     ids.size must be > 0
     //   }
@@ -194,6 +195,6 @@ object FoursquareSpec extends Specification {
     //     val List(txt) = res.flatMap(Tip.text)
     //     txt must_=="test tip"
     //   }
-    // }
+    //}
   }
 }

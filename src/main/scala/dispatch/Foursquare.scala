@@ -7,6 +7,8 @@ import dispatch.liftjson.Js._
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 
+import org.apache.commons.codec.binary.Base64
+
 /** Client is a function to wrap API operations */
 abstract class Client extends ((Request => Request) => Request) {
   import Http.builder2product
@@ -22,8 +24,15 @@ case class OAuthClient(consumer: Consumer, accessToken: Token) extends Client {
 }
 
 case class BasicAuthClient(usernameOrEmail: String, password: String) extends Client {
+  val authorization = "Basic " + new String(
+    Base64.encodeBase64("%s:%s".format(usernameOrEmail, password).getBytes
+  ))
+  /** as(usernameOrEmail, password) will result in
+   * WARN - Authentication error: Unable to respond to any of these challenges: {}
+   */
   def apply(block: Request => Request): Request = 
-    block(host) as(usernameOrEmail, password)
+    block(host) <:< Map("Authorization" -> authorization)
+    
 }
 
 object Auth {
@@ -59,10 +68,10 @@ private [foursquare] class CitiesBuilder extends Method[List[JValue]] {
 private [foursquare] class CityBuilder(val params: Map[String, Any]) extends Method[List[JField]] {
   private def param(k: String)(v: Any) = new CityBuilder(params + (k -> v))
   
-  /** get a City near geolat and geolong */
-  def near(geolat: Double, geolong: Double) = 
+  /** get a City at or nearest geolat and geolong */
+  def at(geolat: Double, geolong: Double) = 
      param("geolat")(geolat).param("geolong")(geolong)
-  def near(geoLatLong: (Double,Double)) =
+  def at(geoLatLong: (Double,Double)) =
     param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   
   def product = (_: Request) / "checkcity.json" <<? params
@@ -100,9 +109,9 @@ private [foursquare] class CheckinsBuilder(val params: Map[String, Any]) extends
   private def param(k: String)(v: Any) = new CheckinsBuilder(params + (k -> v))
   
   /** get a list friends of checkin's @ near a geolat + geolong */
-  def near(geolat: Double, geolong: Double) = 
+  def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
-  def near(geoLatLong: (Double,Double)) =
+  def at(geoLatLong: (Double,Double)) =
     param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   
   def product = (_: Request) / "checkins.json" <<? params 
@@ -248,7 +257,7 @@ object Venues extends VenuesBuilder(Map()) {
 private [foursquare] class VenuesBuilder(params: Map[String, Any]) extends Method[List[JValue]] {
   private def param(k: String)(v: Any) = new VenuesBuilder(params + (k -> v))
   
-  def near(geolat: Double, geolong: Double) = 
+  def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
   def at(geoLatLong: (Double,Double)) =
     param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
@@ -308,14 +317,14 @@ object Tips extends TipsBuilder(Map()) {
 private [foursquare] class TipsBuilder(params: Map[String, Any]) extends Method[List[JValue]] {
   private def param(k: String)(v: Any) = new TipsBuilder(params + (k -> v))
   
-  def near(geolat: Double, geolong: Double) = 
+  def at(geolat: Double, geolong: Double) = 
     param("geolat")(geolat).param("geolong")(geolong)
-  def near(geoLatLong: (Double,Double)) =
+  def at(geoLatLong: (Double,Double)) =
     param("geolat")(geoLatLong._1).param("geolong")(geoLatLong._2)
   val limit = param("l")_
   
   def product = (_: Request) / "tips.json" <<? params
-  def defaultHandler = _ ># ('tips ? ary)
+  def defaultHandler = _ ># ('group ? ary)
 }
 
 private [foursquare] class TipBuilder(params: Map[String, Any]) extends Method[List[JField]] {
