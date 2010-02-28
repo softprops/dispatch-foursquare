@@ -1,15 +1,11 @@
 import sbt._
 
 class FoursquareProject(info: ProjectInfo) extends DefaultProject(info) {
-  override def crossScalaVersions = Set("2.7.6","2.7.6", "2.7.7", "2.8.0.Beta1-RC1") 
+  override def crossScalaVersions = Set("2.7.6", "2.7.7", "2.8.0.Beta1-RC1") 
   val lagNet = "lag.net repository" at "http://www.lag.net/repo"
   val databinderNet = "databinder.net repository" at "http://databinder.net/repo"
-  
-  val commonsOrg = "http://repository.jboss.org repository" at "http://repository.jboss.org/maven2"
-  
-  val codec = "commons-codec" % "commons-codec" % "1.3"
  
-  val dpVersion = "0.6.5"
+  val dpVersion = "0.7.0"
   val dispatchOauth = "net.databinder" %% "dispatch-oauth" % dpVersion
  
   // json 

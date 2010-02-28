@@ -48,7 +48,7 @@ object FoursquareSpec extends Specification {
     val Tokyo = 120l
     val TimesSquareVenue = 41422
     case class FSCity(id: Long, name: String, shortName: String, timezone: String, geo:(Double,Double))
-    val TestCity = FSCity(22, "New York", "NYC", "America/New_York", (40.759011, -73.984472))  
+    val TestCity = FSCity(22, "New York City", "NYC", "America/New_York", (40.759011, -73.984472))  
     case class FSUser(id: Long, firstname: String, lastname: String)
     val AFriend = FSUser(15026, "Ryan", "Gravener")
     val Me = FSUser(140048, "doug", "tangren")

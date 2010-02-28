@@ -7,13 +7,11 @@ import dispatch.liftjson.Js._
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 
-import org.apache.commons.codec.binary.Base64
-
 /** Client is a function to wrap API operations */
 abstract class Client extends ((Request => Request) => Request) {
   import Http.builder2product
   val host = :/("api.foursquare.com") / "v1"
-  def call[T](method: Method[T])(implicit http: Http) = {
+  def call[T](method: Method[T])(implicit http: Http): T = {
     http(method.defaultHandler(apply(method)))
   }
 }
@@ -24,15 +22,8 @@ case class OAuthClient(consumer: Consumer, accessToken: Token) extends Client {
 }
 
 case class BasicAuthClient(usernameOrEmail: String, password: String) extends Client {
-  val authorization = "Basic " + new String(
-    Base64.encodeBase64("%s:%s".format(usernameOrEmail, password).getBytes
-  ))
-  /** as(usernameOrEmail, password) will result in
-   * WARN - Authentication error: Unable to respond to any of these challenges: {}
-   */
   def apply(block: Request => Request): Request = 
-    block(host) <:< Map("Authorization" -> authorization)
-    
+    block(host) as_!(usernameOrEmail, password)
 }
 
 object Auth {
