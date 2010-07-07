@@ -29,7 +29,7 @@ case class BasicAuthClient(usernameOrEmail: String, password: String) extends Cl
 }
 
 object Auth {
-  val host = :/("www.foursquare.com")
+  val host = :/("foursquare.com")
   val svc = host / "oauth"
   def requestToken(consumer: Consumer) =
     svc.POST / "request_token" <@ consumer as_token      
