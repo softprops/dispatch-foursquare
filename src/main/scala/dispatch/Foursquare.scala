@@ -1,4 +1,5 @@
 package dispatch.foursquare
+import dispatch._
 
 import dispatch.oauth._
 import dispatch.oauth.OAuth._
@@ -10,7 +11,8 @@ import net.liftweb.json.JsonAST._
 /** Client is a function to wrap API operations */
 abstract class Client extends ((Request => Request) => Request) {
   import Http.builder2product
-  val host = :/("api.foursquare.com") / "v1"
+  val agent = Map("User-Agent" -> "Dispatch Foursquare:0.0.1")
+  val host = :/("api.foursquare.com") / "v1" <:< agent
   def call[T](method: Method[T])(implicit http: Http): T = {
     http(method.defaultHandler(apply(method)))
   }

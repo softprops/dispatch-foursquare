@@ -41,7 +41,7 @@ object FoursquareSpec extends Specification {
     )
     val fs = OAuthClient(consumer, accessToken)
     
-   detailedDiffs()
+    detailedDiffs()
     
     implicit val http = new Http
       
@@ -111,44 +111,44 @@ object FoursquareSpec extends Specification {
     }
     
     "Users" should {
-       "get the user info for 15026" in {
-          val res = fs.call(Users get(15026))
-          val List(id) = res.flatMap(User.id)
-          val List(firstname) = res.flatMap(User.firstname)
-          val List(lastname) = res.flatMap(User.lastname)
-          firstname must_== AFriend.firstname
-          lastname must_== AFriend.lastname
-          id must_== AFriend.id
-        }
-        "get the user info about the current user" in {
-          val res = fs.call(Users current)
-          val List(id) = res.flatMap(User.id)
-          val List(firstname) = res.flatMap(User.firstname)
-          val List(lastname) = res.flatMap(User.lastname)
-          firstname must_== Me.firstname
-          lastname must_== Me.lastname
-          id must_== Me.id
-        }
+      "get the user info for 15026" in {
+        val res = fs.call(Users get(15026))
+        val List(id) = res.flatMap(User.id)
+        val List(firstname) = res.flatMap(User.firstname)
+        val List(lastname) = res.flatMap(User.lastname)
+        firstname must_== AFriend.firstname
+        lastname must_== AFriend.lastname
+        id must_== AFriend.id
       }
-    // 
-    // "Friends" should {
-    //   "find the current user's friends" in {
-    //     val res = fs.call(Friends ofMe)
-    //     val ids = for (r <- res; id <- Checkin.id(r)) yield id
-    //     ids.size must be > 0
-    //     // todo check settings
-    //   }
-    //   "find user 140048's friends" in {
-    //     val res = fs.call(Friends of(140048))
-    //     val ids = for (r <- res; id <- Checkin.id(r)) yield id
-    //     ids.size must be > 0
-    //   }
-    //   "find friends by name" in {
-    //     val res = fs.call(Friends named("Ryan"))
-    //     val ids = for (r <- res; id <- Checkin.id(r)) yield id
-    //     ids must contain(15026) 
-    //   }
-    // }
+      "get the user info about the current user" in {
+        val res = fs.call(Users current)
+        val List(id) = res.flatMap(User.id)
+        val List(firstname) = res.flatMap(User.firstname)
+        val List(lastname) = res.flatMap(User.lastname)
+        firstname must_== Me.firstname
+        lastname must_== Me.lastname
+        id must_== Me.id
+      }
+    }
+    
+    "Friends" should {
+      "find the current user's friends" in {
+        val res = fs.call(Friends ofMe)
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids.size must be > 0
+        // todo check settings
+      }
+      "find user 140048's friends" in {
+        val res = fs.call(Friends of(140048))
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids.size must be > 0
+      }
+      "find friends by name" in {
+        val res = fs.call(Friends named("Ryan"))
+        val ids = for (r <- res; id <- Checkin.id(r)) yield id
+        ids must contain(15026) 
+      }
+    }
     
     "Venues" should {
         "find the venues near 40.759011,-73.984472 (nyc)" in {
