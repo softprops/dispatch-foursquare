@@ -10,8 +10,8 @@ Check in from everywhere anywhere.
 
     import dispatch.foursquare._
     import dispatch.liftjson.Js._
-    import oauth._
-    import Http._
+    import dispatch.oauth._
+    import dispatch._
     
     val fs = OAuthClient(
       Consumer("C0nSum3rK3y","C0nsuM3rS3cr3t"),
@@ -34,4 +34,4 @@ Check in from everywhere anywhere.
     
     val user = fs.call(Users get(12345) withBadges withoutMayorships)
   
-2009 doug tangren [softprops]
+2009-2010 doug tangren [softprops]
