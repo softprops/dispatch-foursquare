@@ -150,6 +150,7 @@ object Checkin {
   val message = 'message ? str
   val shout = 'shout ? str
   val created = 'created ? date
+  val timezone = 'timezone ? str
   
   // extended
   val mayor = 'mayor ? obj
